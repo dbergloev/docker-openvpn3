@@ -4,8 +4,8 @@ if [[ -z "$OVPN" || ! -f "$OVPN" ]]; then
     echo "Missing VPN profile" >&2
     exit 2
     
-elif [ -f /dev/net/tun ]; then
-    /opt/init/disconnect.sh
+elif [ -e /dev/net/tun ]; then
+    /opt/init/vpn-disconnect.sh
 fi
 
 if ! pgrep dbus-daemon >/dev/null 2>&1; then

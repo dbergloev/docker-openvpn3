@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # Stopping the windscribe service
-openvpn3 session-manage --interface tun0 --disconnect
+while read dev; do
+    openvpn3 session-manage --interface $dev --disconnect
+done < <(ip r | grep -e '^0.0.0.0/1 ' | awk '{print $NF}')
 
 if ip r | grep -qe '^0.0.0.0/1 '; then
     # Failed to disconnect. 
@@ -11,17 +13,20 @@ if ip r | grep -qe '^0.0.0.0/1 '; then
         kill -s SIGKILL $pid
     done
     
-    # Reset the TUN interface
-    inet=$(ip -f inet addr show tun0 2>/dev/null | awk '/inet / {print $2}')
-    if [ -n "$inet" ]; then
-        ip address del $inet dev tun0
-    fi
-    
-    # Cleanup routes
-    while read line; do
-        ip r del $line
-    
-    done < <(ip r | grep tun0)
+    while read dev; do
+        # Reset the TUN interface
+        inet=$(ip -f inet addr show $dev 2>/dev/null | awk '/inet / {print $2}')
+        if [ -n "$inet" ]; then
+            ip address del $inet dev $dev
+        fi
+        
+        # Cleanup routes
+        while read line; do
+            ip r del $line
+        
+        done < <(ip r | grep $dev)
+        
+    done < <(ip r | grep -e '^0.0.0.0/1 ' | awk '{print $NF}')
 fi
 
 # Remove the TUN device
