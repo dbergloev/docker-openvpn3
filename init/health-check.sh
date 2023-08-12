@@ -1,6 +1,8 @@
 #!/bin/bash
 
 if ! openvpn3 session-stats --interface tun0 >/dev/null 2>&1 || ! ip r | grep -qe '^0.0.0.0/1 '; then
+    echo "Health check failed at $(date +'%Y-%m-%d %H:%M')" >/proc/1/fd/2
+    
     /opt/init/vpn-connect.sh >/proc/1/fd/1 2>/proc/1/fd/2; ret=$?
     
     if [ $ret -ne 0 ]; then
@@ -18,7 +20,9 @@ else
         
         if ! ping -c 1 $(grep -e '^remote ' "$OVPN" | awk '{print $2}') >/dev/null 2>&1; then
             if [ $td -ge 20 ]; then
+                echo "Health check failed at $(date +'%Y-%m-%d %H:%M')" >/proc/1/fd/2
                 echo "Network is down, re-setting windscribe connection" >/proc/1/fd/2
+                
                 /opt/init/vpn-connect.sh >/proc/1/fd/1 2>/proc/1/fd/2; ret=$?
                 
                 if [ $ret -ne 0 ]; then

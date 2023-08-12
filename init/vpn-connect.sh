@@ -44,6 +44,8 @@ if ! openvpn3 session-start --config $OVPN --timeout 20 --persist-tun \
     exit 1
     
 elif [ -n "$DNS" ]; then
+    echo "Configuring DNS information"
+
     # Update DNS
     cp /etc/resolv.conf /etc/resolv.conf-bak
     echo "" > /etc/resolv.conf

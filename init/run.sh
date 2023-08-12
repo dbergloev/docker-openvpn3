@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "Launching OpenVPN at $(date +'%Y-%m-%d %H:%M')"
+
 # Change docker user/group ids
 usermod -u $PUID docker_user 2>/dev/null
 groupmod -g $PGID docker_group 2>/dev/null
