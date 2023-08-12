@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if ! openvpn3 session-stats --interface tun0 >/dev/null 2>&1 || ! ip r | grep -qe '^0.0.0.0/1 '; then
+if [ $(ip r | grep -e '^0.0.0.0/1 ' | awk '{print $NF}' | wc -l) -ne 1 ]; then
     echo "Health check failed at $(date +'%Y-%m-%d %H:%M')" >/proc/1/fd/2
     
     /opt/init/vpn-connect.sh >/proc/1/fd/1 2>/proc/1/fd/2; ret=$?
